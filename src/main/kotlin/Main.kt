@@ -16,12 +16,12 @@ fun main(args: Array<String>) {
             val amount = extractArgument(commandLine, """--amount\s+([0-9]+(?:\.[0-9]+)?)""")?.toDouble()
 
             if(amount == null) {
-                println("Amount is required and must be a valid number.")
+                println(getAvailableCommands())
                 return
             }
 
             if(description == null) {
-                println("Description is required and must be a valid description.")
+                println(getAvailableCommands())
                 return
             }
 
@@ -37,6 +37,17 @@ fun main(args: Array<String>) {
         "list" -> {
             val result = manager.list()
             println(result)
+            return
+        }
+
+        "delete" -> {
+            val id = extractArgument(commandLine, """--id\s+([0-9]+)""")?.toIntOrNull()
+            if(id == null) {
+                println(getAvailableCommands())
+                return
+            }
+            val result = manager.delete(id)
+            println("Expense deleted successfully: ${result.id}")
             return
         }
 
@@ -67,9 +78,9 @@ private fun extractArgument(commandLine: String, regexPattern: String): String? 
 
 private fun getAvailableCommands(): String = """
     Comandos disponíveis:
-    - add --description "EXAMPLE" --amount 20: Adiciona uma nova despesa com a descrição fornecida.
+    - add --description "example" --amount 20: Adiciona uma nova despesa com a descrição fornecida.
     - delete --id <id>: Remove uma despesa;
-    - list: Lista todas as despesas).
-    - summary [month]: Exibe o resumo das despesas, opcionalmente filtrando por mês (passando o número do mês 1-12).
+    - list: Lista todas as despesas.
+    - summary <month>: Exibe o resumo das despesas, opcionalmente filtrando por mês (passando o número do mês 1-12).
     - commands: Exibe a lista de comandos disponíveis.
 """.trimIndent()
