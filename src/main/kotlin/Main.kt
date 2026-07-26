@@ -33,6 +33,11 @@ fun main(args: Array<String>) {
             println("Expense added successfully with ID: ${result.id}")
         }
 
+        "list" -> {
+            val result = manager.list()
+            println(result)
+        }
+
         "commands" -> println(getAvailableCommands())
     }
 }
