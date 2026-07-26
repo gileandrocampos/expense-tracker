@@ -31,11 +31,25 @@ fun main(args: Array<String>) {
             )
 
             println("Expense added successfully with ID: ${result.id}")
+            return
         }
 
         "list" -> {
             val result = manager.list()
             println(result)
+            return
+        }
+
+        "summary" -> {
+            val month = extractArgument(commandLine, """--month\s+([0-9]{1,2})""")?.toIntOrNull()
+            if(month == null) {
+                val result = manager.summary(null)
+                println(result)
+                return
+            }
+            val result = manager.summary(month)
+            println(result)
+            return
         }
 
         "commands" -> println(getAvailableCommands())
