@@ -1,16 +1,56 @@
-package org.example
+fun main(args: Array<String>) {
+    if (args.isEmpty()) {
+        println("Nenhum comando fornecido, digite commands")
+        return
+    }
 
-//TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
-// click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
-fun main() {
-    val name = "Kotlin"
-    //TIP Press <shortcut actionId="ShowIntentionActions"/> with your caret at the highlighted text
-    // to see how IntelliJ IDEA suggests fixing it.
-    println("Hello, " + name + "!")
+    val command = args[0].lowercase()
+    val storage = ExpenseStorage()
+    val manager = ExpenseManager(storage)
 
-    for (i in 1..5) {
-        //TIP Press <shortcut actionId="Debug"/> to start debugging your code. We have set one <icon src="AllIcons.Debugger.Db_set_breakpoint"/> breakpoint
-        // for you, but you can always add more by pressing <shortcut actionId="ToggleLineBreakpoint"/>.
-        println("i = $i")
+    val commandLine = args.joinToString(" ")
+
+    when (command) {
+        "add" -> {
+            val description = extractArgument(commandLine, """--description\s+(?:"([^"]+)"|([^-]+))""")
+            val amount = extractArgument(commandLine, """--amount\s+([0-9]+(?:\.[0-9]+)?)""")?.toDouble()
+
+            if(amount == null) {
+                println("Amount is required and must be a valid number.")
+                return
+            }
+
+            if(description == null) {
+                println("Description is required and must be a valid description.")
+                return
+            }
+
+            val result = manager.add(
+                description = description,
+                amount = amount
+            )
+
+            println("Expense added successfully with ID: ${result.id}")
+        }
+
+        "commands" -> println(getAvailableCommands())
     }
 }
+
+private fun extractArgument(commandLine: String, regexPattern: String): String? {
+    val match = regexPattern.toRegex().find(commandLine) ?: return null
+
+    val extractedValue = match.groupValues.getOrNull(1)?.takeIf { it.isNotEmpty() }
+        ?: match.groupValues.getOrNull(2)
+
+    return extractedValue?.trim()
+}
+
+private fun getAvailableCommands(): String = """
+    Comandos disponíveis:
+    - add --description "EXAMPLE" --amount 20: Adiciona uma nova despesa com a descrição fornecida.
+    - delete --id <id>: Remove uma despesa;
+    - list: Lista todas as despesas).
+    - summary [month]: Exibe o resumo das despesas, opcionalmente filtrando por mês (passando o número do mês 1-12).
+    - commands: Exibe a lista de comandos disponíveis.
+""".trimIndent()
